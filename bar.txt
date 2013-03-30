@@ -1,0 +1,66 @@
+// uses https://github.com/anomal/RainbowVis-JS
+
+var dataset=  [];
+var w = 3*document.width/4;
+var h = document.height;
+
+var HIGHRED = "#9F0404";
+var LOWRED = "#1A0000";
+var HIGHGREEN = "#00A210";
+var LOWGREEN = "#001400";
+
+var chart = d3.select("#main")
+ .append("svg")
+ .attr("width", w*.15)
+ .attr("class", "progress")
+ .attr("height", h*.1);
+
+for(var i = 0; i < 20; i++)
+	dataset.push(i*5)
+
+var progress = [0]
+var x, y;
+x = d3.scale.linear()
+   .domain([0, 100])
+   .range([0, w]);
+
+y = d3.scale.ordinal()
+   .domain(dataset)
+   .rangeBands([0, h]);
+
+var rainbow = new Rainbow();
+rainbow.setNumberRange(0, 101);
+rainbow.setSpectrum(HIGHGREEN, HIGHRED); // green
+var colors = [];
+for (var i = 0; i <101; i++)
+  colors[i] = '#' + rainbow.colourAt(i);
+
+
+chart.selectAll("rect")
+   .data(progress)
+   .enter().append("rect")
+   .attr("x", 0)
+   .attr("fill", function(d){
+   	return "rgb(0,0," + d*30+")";
+   })
+   .attr("width", x)
+   .attr("height", y.rangeBand());
+
+var count = 0;
+var increment = setInterval(function(){
+ 	count += 1;
+ 	if(count == 100)
+ 		 clearInterval(increment);
+  	progress[0] += .535;
+  		var bars = chart.selectAll("rect")
+		.data(progress);
+
+	bars.transition()
+	.duration(100)
+	   .attr("fill", function(d){
+   	return colors[count];
+   })
+   .attr("width", x)
+   .attr("height", y.rangeBand());
+   $('#indicator').html(count + "%");
+}, 100);
